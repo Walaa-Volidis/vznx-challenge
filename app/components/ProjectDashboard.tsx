@@ -198,9 +198,9 @@ export default function ProjectDashboard() {
                     <Progress value={project.progress} className="h-2" />
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{project.tasks.length} tasks</span>
+                    <span>{project.tasks?.length || 0} tasks</span>
                     <span>
-                      {project.tasks.filter((t) => t.isComplete).length}{' '}
+                      {project.tasks?.filter((t) => t.isComplete).length || 0}{' '}
                       completed
                     </span>
                   </div>
