@@ -48,14 +48,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma files for migrations and runtime
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/prisma ./prisma
+# Copy entire node_modules for Prisma CLI (it needs all dependencies including 'effect')
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copy the entire node_modules for Prisma CLI (needed for migrations)
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
+# Copy Prisma schema and migrations
+COPY --from=builder /app/prisma ./prisma
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -66,7 +63,6 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV PATH="/app/node_modules/.bin:$PATH"
 
 # Run database migrations and start the server
-CMD ["sh", "-c", "prisma migrate deploy && node server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
