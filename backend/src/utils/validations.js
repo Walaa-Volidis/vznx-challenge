@@ -1,6 +1,6 @@
-import { z } from 'zod';
+const z = require('zod');
 
-export const ZCreateProjectSchema = z.object({
+const ZCreateProjectSchema = z.object({
   name: z
     .string()
     .min(1, 'Project name is required')
@@ -8,13 +8,13 @@ export const ZCreateProjectSchema = z.object({
   status: z.enum(['In Progress', 'Completed']).optional(),
 });
 
-export const ZUpdateProjectSchema = z.object({
+const ZUpdateProjectSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   status: z.enum(['In Progress', 'Completed']).optional(),
   progress: z.number().min(0).max(100).optional(),
 });
 
-export const ZCreateTaskSchema = z.object({
+const ZCreateTaskSchema = z.object({
   name: z
     .string()
     .min(1, 'Task name is required')
@@ -22,21 +22,23 @@ export const ZCreateTaskSchema = z.object({
   teamMemberId: z.string().nullable().optional(),
 });
 
-export const ZUpdateTaskSchema = z.object({
+const ZUpdateTaskSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   isComplete: z.boolean().optional(),
   teamMemberId: z.string().nullable().optional(),
 });
 
-export const ZCreateTeamMemberSchema = z.object({
+const ZCreateTeamMemberSchema = z.object({
   name: z
     .string()
     .min(1, 'Team member name is required')
     .max(100, 'Name is too long'),
 });
 
-export type CreateProjectInput = z.infer<typeof ZCreateProjectSchema>;
-export type UpdateProjectInput = z.infer<typeof ZUpdateProjectSchema>;
-export type CreateTaskInput = z.infer<typeof ZCreateTaskSchema>;
-export type UpdateTaskInput = z.infer<typeof ZUpdateTaskSchema>;
-export type CreateTeamMemberInput = z.infer<typeof ZCreateTeamMemberSchema>;
+module.exports = {
+  ZCreateProjectSchema,
+  ZUpdateProjectSchema,
+  ZCreateTaskSchema,
+  ZUpdateTaskSchema,
+  ZCreateTeamMemberSchema,
+};

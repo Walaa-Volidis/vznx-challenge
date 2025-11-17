@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 type TeamMember = {
   id: string;
   name: string;
@@ -31,7 +33,7 @@ export function useProject(projectId: string) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/projects/${projectId}`);
+      const response = await fetch(`${API_URL}/api/projects/${projectId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch project');
       }
