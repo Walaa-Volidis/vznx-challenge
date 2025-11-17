@@ -12,12 +12,24 @@ This application provides three core features:
 
 ## 🛠️ Tech Stack
 
+### Frontend
+
 - **Framework**: Next.js 16 (App Router)
 - **UI Library**: shadcn/ui (built on Radix UI)
-- **Database**: PostgreSQL
-- **ORM**: Prisma
 - **Styling**: Tailwind CSS
 - **Language**: TypeScript
+
+### Backend
+
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Language**: JavaScript (CommonJS)
+- **Validation**: Zod
+
+### Database & DevOps
+
+- **Database**: PostgreSQL (Neon)
+- **ORM**: Prisma
 - **Containerization**: Docker & Docker Compose
 
 ## 📋 Features Implemented
@@ -61,6 +73,59 @@ This application provides three core features:
 
 ---
 
+## 💻 Manual Setup (Recommended for Development)
+
+### Prerequisites
+
+- Node.js 18+ installed
+- PostgreSQL database (Neon recommended)
+
+### Step-by-Step Setup
+
+#### 1. **Clone the Repository**
+
+```bash
+git clone https://github.com/Walaa-Volidis/vznx-challenge.git
+cd vznx-challenge
+```
+
+#### 2. **Backend Setup**
+
+```bash
+cd backend
+npm install
+
+# Create .env file
+cp .env.example .env
+# Update DATABASE_URL in .env with your PostgreSQL connection string
+
+# Generate Prisma Client
+npx prisma generate --schema=./src/prisma/schema.prisma
+
+# Run database migrations
+npx prisma migrate deploy --schema=./src/prisma/schema.prisma
+
+# Start backend server (port 4000)
+npm run dev
+```
+
+#### 3. **Frontend Setup** (in a new terminal)
+
+```bash
+cd frontend
+npm install
+
+# Start frontend development server (port 3000)
+npm run dev
+```
+
+The application will be available at:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:4000
+
+---
+
 ## 🐳 Quick Start with Docker (Recommended)
 
 The easiest way to run the entire application with a database:
@@ -74,11 +139,24 @@ docker-compose up --build
 This will:
 
 - ✅ Start PostgreSQL database (port 5432)
-- ✅ Build your Next.js application
+- ✅ Build and start the backend API (port 4000)
+- ✅ Build and start the frontend (port 3000)
 - ✅ Run database migrations automatically
-- ✅ Start the server on http://localhost:3000
+- ✅ Connect all services automatically
 
-### 2. **Stop the Application**
+### 2. **Access the Application**
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:4000
+- **Health Check**: http://localhost:4000/health
+
+### 2. **Access the Application**
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:4000
+- **Health Check**: http://localhost:4000/health
+
+### 3. **Stop the Application**
 
 ```bash
 # Stop containers
@@ -94,69 +172,39 @@ docker-compose down -v
 # All logs
 docker-compose logs -f
 
-# App logs only
-docker-compose logs -f app
+# Backend logs only
+docker-compose logs -f backend
+
+# Frontend logs only
+docker-compose logs -f frontend
 ```
 
-That's it! Your app is running at **http://localhost:3000** 🎉
+That's it! Your app is running at **http://localhost:3000** with the API at **http://localhost:4000** 🎉
+
+---
+
+## 💻 Environment Variables
+
+### Backend (.env in backend/)
+
+```env
+PORT=4000
+DATABASE_URL='postgresql://user:password@host:5432/database?sslmode=require'
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+```
+
+### Frontend
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
 
 ---
 
 ## 💻 Manual Setup (Without Docker)
 
-If you prefer to run without Docker:
-
-### Prerequisites
-
-- Node.js 18+ installed
-- A Neon database account (or local PostgreSQL)
-
-### Step-by-Step Setup
-
-#### 1. **Database Configuration**
-
-Create a `.env` file from the example:
-
-```bash
-cp .env.example .env
-```
-
-Update `.env` with your database URL:
-
-```env
-DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
-NODE_ENV="development"
-```
-
-For Neon Database:
-
-1. Go to [Neon Console](https://console.neon.tech)
-2. Create a new project
-3. Copy your connection string
-
-#### 2. **Install Dependencies**
-
-```bash
-npm install
-```
-
-#### 3. **Initialize Database**
-
-```bash
-npx prisma generate
-npx prisma migrate dev --name init
-```
-
-#### 4. **Run the Development Server**
-
-```bash
-npm run dev
-```
-
-The app will be available at:
-
-- Primary: http://localhost:3000
-- Alternative: http://localhost:3001 (if 3000 is in use)
+If you prefer to run without Docker, follow the manual setup instructions above in the "Getting Started" section.
 
 ## 🗄️ Database Schema
 
@@ -208,25 +256,32 @@ The team page shows workload using a simple formula:
 
 ## 🔧 API Endpoints
 
+All API endpoints are prefixed with `http://localhost:4000/api`
+
 ### Projects
 
-- `GET /api/projects` - List all projects
-- `POST /api/projects` - Create project
-- `GET /api/projects/[id]` - Get single project
-- `PATCH /api/projects/[id]` - Update project
-- `DELETE /api/projects/[id]` - Delete project
+- `GET /api/projects` - List all projects with task counts
+- `POST /api/projects` - Create a new project
+  - Body: `{ name: string, status?: 'In Progress' | 'Completed' }`
+- `GET /api/projects/:id` - Get single project with tasks
+- `PATCH /api/projects/:id` - Update project
+  - Body: `{ name?: string, status?: string, progress?: number }`
+- `DELETE /api/projects/:id` - Delete project
 
 ### Tasks
 
-- `GET /api/projects/[id]/tasks` - List project tasks
-- `POST /api/projects/[id]/tasks` - Create task
-- `PATCH /api/tasks/[taskId]` - Update task (toggle, assign)
-- `DELETE /api/tasks/[taskId]` - Delete task
+- `GET /api/projects/:id/tasks` - List all tasks for a project
+- `POST /api/projects/:id/tasks` - Create a task in a project
+  - Body: `{ name: string, teamMemberId?: string | null }`
+- `PATCH /api/projects/tasks/:taskId` - Update a task
+  - Body: `{ name?: string, isComplete?: boolean, teamMemberId?: string | null }`
+- `DELETE /api/projects/tasks/:taskId` - Delete a task
 
 ### Team
 
-- `GET /api/team` - List all team members
-- `POST /api/team` - Create team member
+- `GET /api/team` - List all team members with task counts
+- `POST /api/team` - Create a new team member
+  - Body: `{ name: string }`
 
 ## 🎯 Usage Guide
 
@@ -260,11 +315,19 @@ The team page shows workload using a simple formula:
 
 ## 🎨 Design Choices
 
+### Architecture
+
+- **Monorepo Structure**: Separate frontend and backend for clear separation of concerns
+- **Layered Backend**: Controller → Service → Repository pattern for maintainability
+- **REST API**: Simple, stateless API design
+- **Type Safety**: TypeScript in frontend, Zod validation in backend
+
+### UI/UX
+
 - **Minimal UI**: Clean, card-based design for clarity
 - **Visual Feedback**: Color-coded status, progress bars, checkboxes
 - **Auto-Updates**: Progress calculated automatically from task completion
 - **Responsive**: Works on desktop and mobile devices
-- **Type-Safe**: Full TypeScript for reliability
 
 ## 🚧 Future Enhancements
 
@@ -281,13 +344,60 @@ Potential improvements:
 
 ## 📝 Development Notes
 
-- Uses Next.js App Router for modern React patterns
+### Backend
+
+- Express.js with CommonJS modules
+- Layered architecture (Controllers, Services, Repositories)
+- Centralized error handling middleware
+- Zod for request validation
+- Prisma ORM for type-safe database access
+
+### Frontend
+
+- Next.js 16 App Router for modern React patterns
 - Server components for data fetching
 - Client components for interactivity
-- Prisma for type-safe database access
+- Custom hooks for API integration
 - shadcn/ui for consistent, accessible components
 
 ## 🐛 Troubleshooting
+
+### Backend Issues
+
+**Prisma Client Not Generated**
+
+```bash
+cd backend
+npx prisma generate --schema=./src/prisma/schema.prisma
+```
+
+**Database Connection Issues**
+
+- Verify your `.env` DATABASE_URL is correct
+- Ensure PostgreSQL/Neon database is active
+- Run `npx prisma migrate deploy --schema=./src/prisma/schema.prisma`
+
+**Port 4000 Already in Use**
+
+```bash
+# Change PORT in backend/.env
+PORT=4001
+```
+
+### Frontend Issues
+
+**API Connection Failed**
+
+- Ensure backend is running on port 4000
+- Check `NEXT_PUBLIC_API_URL` environment variable
+- Verify CORS settings in backend
+
+**Port 3000 Already in Use**
+
+```bash
+# Run on different port
+npm run dev -- -p 3001
+```
 
 ### Docker Issues
 
@@ -307,6 +417,7 @@ docker-compose ps
 
 # View logs
 docker-compose logs db
+docker-compose logs backend
 
 # Restart services
 docker-compose restart
@@ -326,34 +437,23 @@ docker-compose up --build
 docker-compose build --no-cache
 ```
 
-### Manual Setup Issues
-
-**Database Connection Issues**
-
-- Verify your `.env` DATABASE_URL is correct
-- Ensure Neon database is active
-- Run `npx prisma db push` to sync schema
-
-**Port Already in Use**
-
-- The app automatically uses port 3001 if 3000 is busy
-- Or manually specify: `npm run dev -- -p 3002`
-
-**Prisma Generate Errors**
-
-- Run `npx prisma generate` after schema changes
-- Delete `node_modules/.prisma` and regenerate
-
 ---
 
 ## 🐳 Docker Commands Reference
 
 ```bash
+# Start all services
+docker-compose up
+
 # Start in background
 docker-compose up -d
 
 # View logs
 docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f backend
+docker-compose logs -f frontend
 
 # Stop containers
 docker-compose down
@@ -361,9 +461,9 @@ docker-compose down
 # Fresh start (removes data)
 docker-compose down -v && docker-compose up --build
 
-# Run Prisma commands
-docker-compose exec app npx prisma studio
-docker-compose exec app npx prisma migrate deploy
+# Run Prisma commands in backend
+docker-compose exec backend npx prisma studio --schema=./src/prisma/schema.prisma
+docker-compose exec backend npx prisma migrate deploy --schema=./src/prisma/schema.prisma
 
 # Access PostgreSQL CLI
 docker-compose exec db psql -U postgres -d vznx_challenge
@@ -373,26 +473,36 @@ docker-compose exec db psql -U postgres -d vznx_challenge
 
 ## 📦 Deployment
 
+### Vercel (Frontend Only)
+
+The frontend can be deployed to Vercel. The `vercel.json` file is already configured for the monorepo structure.
+
+1. Push your code to GitHub
+2. Import the project in Vercel
+3. Vercel will automatically detect the Next.js app in the `frontend/` directory
+4. Add environment variables:
+   - `NEXT_PUBLIC_API_URL` - Your backend API URL
+
+### Backend Deployment (Railway/Render/Fly.io)
+
+Deploy the Express backend separately:
+
+1. Use the `backend/` directory as the root
+2. Set environment variables:
+   - `DATABASE_URL` - PostgreSQL connection string
+   - `NODE_ENV=production`
+   - `PORT=4000`
+   - `CORS_ORIGIN` - Your frontend URL
+
 ### Docker Production
 
 ```bash
-# Build the image
-docker build -t vznx-challenge:latest .
+# Build the images
+docker-compose -f docker-compose.prod.yml build
 
 # Run with external database
-docker run -p 3000:3000 \
-  -e DATABASE_URL="your-production-database-url" \
-  vznx-challenge:latest
+docker-compose -f docker-compose.prod.yml up -d
 ```
-
-### Vercel/Railway/Render
-
-For platform deployment, check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
-
-**Environment Variables Required:**
-
-- `DATABASE_URL` - PostgreSQL connection string
-- `NODE_ENV=production`
 
 ---
 
@@ -400,22 +510,59 @@ For platform deployment, check out the [Next.js deployment documentation](https:
 
 ```
 vznx-challenge/
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── components/        # React components
-│   ├── hooks/             # Custom React hooks
-│   ├── projects/          # Project pages
-│   └── team/              # Team page
-├── lib/                   # Utilities
-│   ├── prisma.ts         # Prisma client
-│   ├── utils.ts          # Helper functions
-│   └── validations.ts    # Zod schemas
-├── prisma/               # Database
-│   ├── schema.prisma     # Database schema
-│   └── migrations/       # Migration history
-├── docker-compose.yml    # Docker orchestration
-├── Dockerfile           # Production image
-└── .env.example        # Environment template
+├── backend/                # Express.js Backend
+│   ├── src/
+│   │   ├── config/        # Configuration files
+│   │   │   ├── db.js     # Prisma client instance
+│   │   │   └── env.js    # Environment variables
+│   │   ├── controllers/   # Request handlers
+│   │   │   ├── project.controller.js
+│   │   │   ├── task.controller.js
+│   │   │   └── team.controller.js
+│   │   ├── services/      # Business logic
+│   │   │   ├── project.service.js
+│   │   │   ├── task.service.js
+│   │   │   └── team.service.js
+│   │   ├── repositories/  # Database access layer
+│   │   │   ├── project.repository.js
+│   │   │   ├── task.repository.js
+│   │   │   └── team.repository.js
+│   │   ├── routes/        # API routes
+│   │   │   ├── project.routes.js
+│   │   │   ├── task.routes.js
+│   │   │   └── team.routes.js
+│   │   ├── middlewares/   # Express middlewares
+│   │   │   └── error.middleware.js
+│   │   ├── utils/         # Utilities
+│   │   │   └── validations.js  # Zod schemas
+│   │   ├── prisma/        # Database
+│   │   │   ├── schema.prisma
+│   │   │   └── migrations/
+│   │   ├── app.js         # Express app setup
+│   │   └── server.js      # Server entry point
+│   ├── package.json
+│   └── .env               # Backend environment variables
+├── frontend/              # Next.js Frontend
+│   ├── app/
+│   │   ├── components/    # React components
+│   │   │   ├── ProjectDashboard.tsx
+│   │   │   └── ui/       # shadcn/ui components
+│   │   ├── hooks/         # Custom React hooks
+│   │   │   ├── use-projects.ts
+│   │   │   ├── use-tasks.ts
+│   │   │   └── use-team.ts
+│   │   ├── projects/      # Project pages
+│   │   │   └── [id]/
+│   │   ├── team/          # Team page
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── lib/              # Utilities
+│   │   └── utils.ts
+│   └── package.json
+├── docker-compose.yml     # Docker orchestration
+├── Dockerfile            # Production image
+├── vercel.json           # Vercel deployment config
+└── .gitignore
 ```
 
 #
