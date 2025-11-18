@@ -1,34 +1,30 @@
 import { useState, useCallback } from 'react';
 
-type TeamMember = {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+type Project = {
   id: string;
   name: string;
+  status: string;
+  progress: number;
+  tasks: any[];
 };
 
-type Task = {
-  id: string;
-  name: string;
-  isComplete: boolean;
-  teamMember: TeamMember | null;
-};
-
-export function useTasks(projectId: string) {
-  const [tasks, setTasks] = useState<Task[]>([]);
+export function useProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTasks = useCallback(async () => {
-    if (!projectId) return;
-
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/projects/${projectId}/tasks`);
+      const response = await fetch(`${API_URL}/api/projects`);
       if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
+        throw new Error('Failed to fetch projects');
       }
       const data = await response.json();
-      setTasks(data);
+      setProjects(data);
       return data;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred';
@@ -37,69 +33,27 @@ export function useTasks(projectId: string) {
     } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, []);
 
-  const createTask = useCallback(
-    async (name: string, teamMemberId?: string) => {
-      if (!projectId) return;
-
+  const createProject = useCallback(
+    async (name: string, status: string = 'In Progress') => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/projects/${projectId}/tasks`, {
+        const response = await fetch(`${API_URL}/api/projects`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, teamMemberId: teamMemberId || null }),
+          body: JSON.stringify({ name, status }),
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create task');
+          throw new Error(errorData.error || 'Failed to create project');
         }
 
-        const newTask = await response.json();
-        setTasks((prev) => [...prev, newTask]);
-        return newTask;
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'An error occurred';
-        setError(message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [projectId]
-  );
-
-  const updateTask = useCallback(
-    async (
-      taskId: string,
-      updates: {
-        isComplete?: boolean;
-        name?: string;
-        teamMemberId?: string | null;
-      }
-    ) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to update task');
-        }
-
-        const updatedTask = await response.json();
-        setTasks((prev) =>
-          prev.map((task) => (task.id === taskId ? updatedTask : task))
-        );
-        return updatedTask;
+        const newProject = await response.json();
+        setProjects((prev) => [newProject, ...prev]);
+        return newProject;
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'An error occurred';
@@ -112,27 +66,56 @@ export function useTasks(projectId: string) {
     []
   );
 
-  const toggleTask = useCallback(
-    async (taskId: string, currentStatus: boolean) => {
-      return updateTask(taskId, { isComplete: !currentStatus });
+  const updateProject = useCallback(
+    async (
+      id: string,
+      updates: { name?: string; status?: string; progress?: number }
+    ) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`${API_URL}/api/projects/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update project');
+        }
+
+        const updatedProject = await response.json();
+        setProjects((prev) =>
+          prev.map((project) => (project.id === id ? updatedProject : project))
+        );
+        return updatedProject;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'An error occurred';
+        setError(message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
     },
-    [updateTask]
+    []
   );
 
-  const deleteTask = useCallback(async (taskId: string) => {
+  const deleteProject = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
+      const response = await fetch(`${API_URL}/api/projects/${id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete task');
+        throw new Error(errorData.error || 'Failed to delete project');
       }
 
-      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      setProjects((prev) => prev.filter((project) => project.id !== id));
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred';
@@ -144,14 +127,12 @@ export function useTasks(projectId: string) {
   }, []);
 
   return {
-    tasks,
+    projects,
     loading,
     error,
-    fetchTasks,
-    createTask,
-    updateTask,
-    toggleTask,
-    deleteTask,
-    setTasks,
+    fetchProjects,
+    createProject,
+    updateProject,
+    deleteProject,
   };
 }

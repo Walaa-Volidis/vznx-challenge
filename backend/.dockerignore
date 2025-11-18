@@ -1,0 +1,37 @@
+# Ignore node modules
+node_modules
+npm-debug.log
+package-lock.json
+
+# Ignore Prisma generated client (will regenerate)
+src/prisma/generated
+
+# Ignore env files
+.env
+.env.*
+!.env.example
+
+# Ignore git
+.git
+.gitignore
+
+# Ignore IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+logs
+
+# Ignore test coverage
+coverage
+
+# Ignore documentation
+*.md
+!README.md

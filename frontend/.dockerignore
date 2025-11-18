@@ -1,0 +1,46 @@
+# Ignore node modules
+node_modules
+npm-debug.log
+package-lock.json
+
+# Ignore build outputs
+.next
+out
+build
+dist
+
+# Ignore env files
+.env
+.env.*
+!.env.example
+
+# Ignore git
+.git
+.gitignore
+
+# Ignore IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+logs
+
+# Ignore test coverage
+coverage
+.nyc_output
+
+# Ignore documentation
+*.md
+!README.md
+
+# Ignore misc
+.prettierrc
+.eslintrc
+tsconfig.json

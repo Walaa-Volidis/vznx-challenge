@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 type Task = {
   id: string;
   name: string;
@@ -21,7 +23,7 @@ export function useTeam() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/team');
+      const response = await fetch(`${API_URL}/api/team`);
       if (!response.ok) {
         throw new Error('Failed to fetch team members');
       }
@@ -41,7 +43,7 @@ export function useTeam() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/team', {
+      const response = await fetch(`${API_URL}/api/team`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name }),
