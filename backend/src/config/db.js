@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { SERVER_SETTINGS } from './settings.js';
 
 const prisma = new PrismaClient({
   log:
-    process.env.NODE_ENV === 'development'
+    SERVER_SETTINGS.nodeEnv === 'development'
       ? ['query', 'error', 'warn']
       : ['error'],
 });

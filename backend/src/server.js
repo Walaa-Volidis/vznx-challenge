@@ -1,8 +1,9 @@
 import app from './app.js';
 import env from './config/env.js';
 import { connectDatabase } from './config/db.js';
+import { SERVER_SETTINGS } from './config/settings.js';
 
-const PORT = env.PORT || 4000;
+const PORT = SERVER_SETTINGS.port;
 
 async function startServer() {
   try {

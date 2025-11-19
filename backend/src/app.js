@@ -5,12 +5,13 @@ import errorMiddleware from './middlewares/error.middleware.js';
 import projectRoutes from './routes/project.routes.js';
 import taskRoutes from './routes/task.routes.js';
 import teamRoutes from './routes/team.routes.js';
+import { SERVER_SETTINGS } from './config/settings.js';
 
 const app = express();
 
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: SERVER_SETTINGS.corsOrigin,
     credentials: true,
   })
 );
