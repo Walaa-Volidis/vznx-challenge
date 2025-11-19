@@ -72,6 +72,13 @@ export default function RootLayout({
                     <Users className="h-4 w-4" />
                     <span>Team</span>
                   </Link>
+                  <Link
+                    href="/analytics"
+                    className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-2"
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Analytic</span>
+                  </Link>
                 </div>
               </div>
 
