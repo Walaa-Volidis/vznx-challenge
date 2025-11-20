@@ -1,9 +1,11 @@
-import teamService from '../services/team.service.js';
-
 class TeamController {
+  constructor(teamService) {
+    this.teamService = teamService;
+  }
+
   async getAllTeamMembers(req, res, next) {
     try {
-      const teamMembers = await teamService.getAllTeamMembers();
+      const teamMembers = await this.teamService.getAllTeamMembers();
       res.json(teamMembers);
     } catch (error) {
       next(error);
@@ -12,7 +14,7 @@ class TeamController {
 
   async createTeamMember(req, res, next) {
     try {
-      const teamMember = await teamService.createTeamMember(req.body);
+      const teamMember = await this.teamService.createTeamMember(req.body);
       res.status(201).json(teamMember);
     } catch (error) {
       next(error);
@@ -20,4 +22,4 @@ class TeamController {
   }
 }
 
-export default new TeamController();
+export default TeamController;
