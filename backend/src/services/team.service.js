@@ -1,9 +1,12 @@
-import teamRepository from '../repositories/team.repository.js';
 import { ZCreateTeamMemberSchema } from '../utils/validations.js';
 
 class TeamService {
+  constructor(teamRepository) {
+    this.teamRepository = teamRepository;
+  }
+
   async getAllTeamMembers() {
-    return await teamRepository.findAll();
+    return await this.teamRepository.findAll();
   }
 
   async createTeamMember(data) {
@@ -12,8 +15,8 @@ class TeamService {
       name: validatedData.name,
     };
 
-    return await teamRepository.create(teamMemberData);
+    return await this.teamRepository.create(teamMemberData);
   }
 }
 
-export default new TeamService();
+export default TeamService;

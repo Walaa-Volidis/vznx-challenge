@@ -1,9 +1,11 @@
-import teamRepository from '../repositories/team.repository.js';
-import projectRepository from '../repositories/project.repository.js';
-
 class AnalyticsService {
+  constructor(teamRepository, projectRepository) {
+    this.teamRepository = teamRepository;
+    this.projectRepository = projectRepository;
+  }
+
   async getTaskInsights() {
-    const projects = await projectRepository.findAll();
+    const projects = await this.projectRepository.findAll();
 
     const taskStats = projects.map((project) => ({
       projectName: project.name,
@@ -31,7 +33,7 @@ class AnalyticsService {
   }
 
   async getTeamInsights() {
-    const teamMembers = await teamRepository.findAll();
+    const teamMembers = await this.teamRepository.findAll();
 
     const teamStats = teamMembers.map((member) => ({
       name: member.name,
@@ -63,4 +65,4 @@ class AnalyticsService {
   }
 }
 
-export default new AnalyticsService();
+export default AnalyticsService;

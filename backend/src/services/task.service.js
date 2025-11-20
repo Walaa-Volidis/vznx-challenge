@@ -1,10 +1,13 @@
-import taskRepository from '../repositories/task.repository.js';
-import projectRepository from '../repositories/project.repository.js';
 import { ZCreateTaskSchema, ZUpdateTaskSchema } from '../utils/validations.js';
 
 class TaskService {
+  constructor(taskRepository, projectRepository) {
+    this.taskRepository = taskRepository;
+    this.projectRepository = projectRepository;
+  }
+
   async getTasksByProjectId(projectId) {
-    return await taskRepository.findByProjectId(projectId);
+    return await this.taskRepository.findByProjectId(projectId);
   }
 
   async createTask(projectId, data) {
@@ -16,13 +19,13 @@ class TaskService {
       teamMemberId: validatedData.teamMemberId || null,
     };
 
-    return await taskRepository.create(taskData);
+    return await this.taskRepository.create(taskData);
   }
 
   async updateTask(taskId, data) {
     const validatedData = ZUpdateTaskSchema.parse(data);
 
-    const existingTask = await taskRepository.findById(taskId);
+    const existingTask = await this.taskRepository.findById(taskId);
     if (!existingTask) {
       const error = new Error('Task not found');
       error.statusCode = 404;
@@ -36,7 +39,7 @@ class TaskService {
     if (validatedData.teamMemberId !== undefined)
       updateData.teamMemberId = validatedData.teamMemberId;
 
-    const updatedTask = await taskRepository.update(taskId, updateData);
+    const updatedTask = await this.taskRepository.update(taskId, updateData);
 
     if (validatedData.isComplete !== undefined) {
       await this.updateProjectProgress(updatedTask.projectId);
@@ -46,7 +49,7 @@ class TaskService {
   }
 
   async deleteTask(taskId) {
-    const task = await taskRepository.findById(taskId);
+    const task = await this.taskRepository.findById(taskId);
     if (!task) {
       const error = new Error('Task not found');
       error.statusCode = 404;
@@ -54,24 +57,24 @@ class TaskService {
     }
 
     const projectId = task.projectId;
-    await taskRepository.remove(taskId);
+    await this.taskRepository.remove(taskId);
     await this.updateProjectProgress(projectId);
     return { message: 'Task deleted successfully' };
   }
 
   async updateProjectProgress(projectId) {
-    const { total, completed } = await taskRepository.countByProjectId(
+    const { total, completed } = await this.taskRepository.countByProjectId(
       projectId
     );
 
     const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
     const status = progress === 100 ? 'Completed' : 'In Progress';
 
-    await projectRepository.update(projectId, {
+    await this.projectRepository.update(projectId, {
       progress,
       status,
     });
   }
 }
 
-export default new TaskService();
+export default TaskService;
