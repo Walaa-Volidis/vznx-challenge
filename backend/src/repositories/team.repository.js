@@ -1,8 +1,10 @@
-import { prisma } from '../config/db.js';
-
 class TeamRepository {
+  constructor(prisma) {
+    this.prisma = prisma;
+  }
+
   async findAll() {
-    return await prisma.teamMember.findMany({
+    return await this.prisma.teamMember.findMany({
       include: {
         tasks: true,
       },
@@ -13,7 +15,7 @@ class TeamRepository {
   }
 
   async findById(id) {
-    return await prisma.teamMember.findUnique({
+    return await this.prisma.teamMember.findUnique({
       where: { id },
       include: {
         tasks: true,
@@ -22,7 +24,7 @@ class TeamRepository {
   }
 
   async create(data) {
-    return await prisma.teamMember.create({
+    return await this.prisma.teamMember.create({
       data,
       include: {
         tasks: true,
@@ -31,4 +33,4 @@ class TeamRepository {
   }
 }
 
-export default new TeamRepository();
+export default TeamRepository;

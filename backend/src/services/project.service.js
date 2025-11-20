@@ -1,16 +1,19 @@
-import projectRepository from '../repositories/project.repository.js';
 import {
   ZCreateProjectSchema,
   ZUpdateProjectSchema,
 } from '../utils/validations.js';
 
 class ProjectService {
+  constructor(projectRepository) {
+    this.projectRepository = projectRepository;
+  }
+
   async getAllProjects() {
-    return await projectRepository.findAll();
+    return await this.projectRepository.findAll();
   }
 
   async getProjectById(id) {
-    const project = await projectRepository.findById(id);
+    const project = await this.projectRepository.findById(id);
 
     if (!project) {
       const error = new Error('Project not found');
@@ -30,7 +33,7 @@ class ProjectService {
       progress: 0,
     };
 
-    return await projectRepository.create(projectData);
+    return await this.projectRepository.create(projectData);
   }
 
   async updateProject(id, data) {
@@ -45,14 +48,14 @@ class ProjectService {
     if (validatedData.progress !== undefined)
       updateData.progress = validatedData.progress;
 
-    return await projectRepository.update(id, updateData);
+    return await this.projectRepository.update(id, updateData);
   }
 
   async deleteProject(id) {
     await this.getProjectById(id);
 
-    return await projectRepository.remove(id);
+    return await this.projectRepository.remove(id);
   }
 }
 
-export default new ProjectService();
+export default ProjectService;

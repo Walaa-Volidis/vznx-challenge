@@ -1,9 +1,11 @@
-import analyticsService from '../services/analytics.service.js';
-
 class AnalyticsController {
+  constructor(analyticsService) {
+    this.analyticsService = analyticsService;
+  }
+
   async getTaskInsights(req, res, next) {
     try {
-      const insights = await analyticsService.getTaskInsights();
+      const insights = await this.analyticsService.getTaskInsights();
       res.json(insights);
     } catch (error) {
       next(error);
@@ -12,7 +14,7 @@ class AnalyticsController {
 
   async getTeamInsights(req, res, next) {
     try {
-      const insights = await analyticsService.getTeamInsights();
+      const insights = await this.analyticsService.getTeamInsights();
       res.json(insights);
     } catch (error) {
       next(error);
@@ -20,4 +22,4 @@ class AnalyticsController {
   }
 }
 
-export default new AnalyticsController();
+export default AnalyticsController;

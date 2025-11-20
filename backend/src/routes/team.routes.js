@@ -1,10 +1,11 @@
 import express from 'express';
-import teamController from '../controllers/team.controller.js';
 
-const router = express.Router();
+export default function createTeamRoutes(teamController) {
+  const router = express.Router();
 
-router.get('/', teamController.getAllTeamMembers.bind(teamController));
+  router.get('/', teamController.getAllTeamMembers.bind(teamController));
 
-router.post('/', teamController.createTeamMember.bind(teamController));
+  router.post('/', teamController.createTeamMember.bind(teamController));
 
-export default router;
+  return router;
+}
