@@ -1,8 +1,10 @@
-import { prisma } from '../config/db.js';
-
 class TaskRepository {
+  constructor(prisma) {
+    this.prisma = prisma;
+  }
+
   async findByProjectId(projectId) {
-    return await prisma.task.findMany({
+    return await this.prisma.task.findMany({
       where: { projectId },
       include: {
         teamMember: true,
@@ -14,7 +16,7 @@ class TaskRepository {
   }
 
   async findById(id) {
-    return await prisma.task.findUnique({
+    return await this.prisma.task.findUnique({
       where: { id },
       include: {
         teamMember: true,
@@ -24,7 +26,7 @@ class TaskRepository {
   }
 
   async create(data) {
-    return await prisma.task.create({
+    return await this.prisma.task.create({
       data,
       include: {
         teamMember: true,
@@ -33,7 +35,7 @@ class TaskRepository {
   }
 
   async update(id, data) {
-    return await prisma.task.update({
+    return await this.prisma.task.update({
       where: { id },
       data,
       include: {
@@ -44,13 +46,13 @@ class TaskRepository {
   }
 
   async remove(id) {
-    return await prisma.task.delete({
+    return await this.prisma.task.delete({
       where: { id },
     });
   }
 
   async countByProjectId(projectId) {
-    const tasks = await prisma.task.findMany({
+    const tasks = await this.prisma.task.findMany({
       where: { projectId },
       select: {
         isComplete: true,
@@ -62,4 +64,4 @@ class TaskRepository {
   }
 }
 
-export default new TaskRepository();
+export default TaskRepository;
